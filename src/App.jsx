@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProductsPage from './pages/ProductsPage';
 import ProductFormPage from './pages/ProductFormPage';
+import BulkUploadPage from './pages/BulkUploadPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -61,6 +62,14 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <ProductFormPage />
+              </MainLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/products/bulk-upload" element={
+            <ProtectedRoute>
+              <MainLayout>
+                <BulkUploadPage />
               </MainLayout>
             </ProtectedRoute>
           } />

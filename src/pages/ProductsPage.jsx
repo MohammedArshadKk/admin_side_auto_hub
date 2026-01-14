@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, SlidersHorizontal, Package2, CheckCircle2, Clock, AlertTriangle, Edit2, X } from 'lucide-react';
+import { Plus, Search, SlidersHorizontal, Package2, CheckCircle2, Clock, AlertTriangle, Edit2, X, Upload } from 'lucide-react';
 
 const StatCard = ({ title, value, change, icon: Icon, iconBg }) => (
     <div style={{
@@ -232,6 +232,28 @@ const ProductsPage = () => {
                     More Filters
                 </button>
 
+                {/* Bulk Upload Button */}
+                <button
+                    onClick={() => navigate('/products/bulk-upload')}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.75rem 1.25rem',
+                        background: 'transparent',
+                        border: '1px solid var(--primary)',
+                        borderRadius: 'var(--radius-lg)',
+                        color: 'var(--primary)',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        marginLeft: 'auto',
+                    }}
+                >
+                    <Upload size={18} />
+                    Bulk Upload
+                </button>
+
                 {/* Add Button */}
                 <button
                     onClick={() => navigate('/products/new')}
@@ -247,7 +269,6 @@ const ProductsPage = () => {
                         fontSize: '14px',
                         fontWeight: 500,
                         cursor: 'pointer',
-                        marginLeft: 'auto',
                     }}
                 >
                     <Plus size={18} />

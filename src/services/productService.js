@@ -3,7 +3,8 @@
  * Handles all product-related API calls
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api/v1';
+// Use relative URL in development (proxy), absolute in production
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 /**
  * Create a new product (Admin)
@@ -140,10 +141,40 @@ export const deleteProduct = async (productId) => {
     }
 };
 
+/**
+ * Bulk create products (Admin)
+ * @param {Array} products - Array of product data objects
+ * @returns {Promise<Object>} - Bulk creation response with results
+ */
+export const bulkCreateProducts = async (products) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/products/bulk`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ products }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to bulk create products');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Bulk create products error:', error);
+        throw error;
+    }
+};
+
 export default {
     createProduct,
     updateProduct,
     getProduct,
     getProducts,
     deleteProduct,
+    bulkCreateProducts,
 };
