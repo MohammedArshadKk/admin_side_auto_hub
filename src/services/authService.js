@@ -3,7 +3,8 @@
  * Handles all authentication-related API calls
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api/v1';
+// Use relative URL in development (proxy), absolute in production
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 /**
  * Admin login
