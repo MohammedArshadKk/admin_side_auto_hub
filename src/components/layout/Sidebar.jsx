@@ -5,6 +5,7 @@ import {
   Package,
   ShoppingCart,
   DollarSign,
+  Users,
   Settings,
   HelpCircle,
   LogOut
@@ -17,6 +18,7 @@ const Sidebar = () => {
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
     { icon: Package, label: 'Inventory', path: '/products' },
+    { icon: Users, label: 'Manage Sellers', path: '/sellers' },
     { icon: ShoppingCart, label: 'Orders', path: '/orders', badge: 3 },
     { icon: DollarSign, label: 'Earnings', path: '/earnings' },
   ];
