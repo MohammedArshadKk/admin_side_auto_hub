@@ -8,6 +8,8 @@ import ProductsPage from './pages/ProductsPage';
 import PartFormPage from './pages/PartFormPage';
 import BulkUploadPage from './pages/BulkUploadPage';
 import PartsBulkUploadPage from './pages/PartsBulkUploadPage';
+import SellersPage from './pages/SellersPage';
+import CreateSellerPage from './pages/CreateSellerPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -95,6 +97,22 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <PlaceholderPage title="Vendor Management" />
+              </MainLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/sellers" element={
+            <ProtectedRoute>
+              <MainLayout>
+                <SellersPage />
+              </MainLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/sellers/create" element={
+            <ProtectedRoute>
+              <MainLayout>
+                <CreateSellerPage />
               </MainLayout>
             </ProtectedRoute>
           } />
