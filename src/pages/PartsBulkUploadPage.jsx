@@ -215,19 +215,72 @@ const PartsBulkUploadPage = () => {
                     return;
                 }
 
-                // Parse and validate
-                const parts = [];
+                // Group rows by Part Name for multi-vehicle support
+                const partsMap = new Map();
                 const validationErrors = [];
 
                 jsonData.forEach((row, index) => {
-                    const part = parseExcelRow(row);
-                    const rowErrors = validatePart(part, index);
+                    const partName = (row.partName || row['Part Name'] || '').trim();
 
-                    if (rowErrors.length > 0) {
-                        validationErrors.push(...rowErrors);
+                    if (!partName) {
+                        validationErrors.push(`Row ${index + 2}: Part Name is required`);
+                        return;
+                    }
+
+                    // Get vehicle info from current row
+                    const year = row.year || row['Year'];
+                    const make = row.make || row['Make'];
+                    const model = row.model || row['Model'];
+                    const variant = row.variant || row['Variant'];
+
+                    const vehicle = (year && make && model) ? {
+                        year: parseInt(year),
+                        make: make.trim(),
+                        model: model.trim(),
+                        ...(variant && { variant: variant.trim() })
+                    } : null;
+
+                    if (!partsMap.has(partName)) {
+                        // First row for this part - get all part details
+                        const description = (row.description || row['Description'] || '').trim();
+                        const category = (row.category || row['Category'] || '').trim();
+                        const brandsInput = row.brand || row.brands || row['Brands'] || '';
+                        const partNumbersInput = row.partNumbers || row['Part Numbers'] || '';
+
+                        const part = {
+                            partName,
+                            description,
+                            category,
+                            brand: brandsInput ? brandsInput.split(',').map(b => b.trim()).filter(Boolean) : [],
+                            partNumbers: partNumbersInput ? partNumbersInput.split(',').map(pn => pn.trim()).filter(Boolean) : [],
+                            compatibleVehicles: []
+                        };
+
+                        if (vehicle) {
+                            part.compatibleVehicles.push(vehicle);
+                        }
+
+                        partsMap.set(partName, part);
+                    } else {
+                        // Subsequent rows - just add vehicle if present
+                        if (vehicle) {
+                            partsMap.get(partName).compatibleVehicles.push(vehicle);
+                        }
+                    }
+                });
+
+                // Validate all parts
+                const parts = [];
+                let rowIndex = 0;
+
+                partsMap.forEach((part) => {
+                    const errors = validatePart(part, rowIndex);
+                    if (errors.length > 0) {
+                        validationErrors.push(...errors);
                     } else {
                         parts.push(part);
                     }
+                    rowIndex++;
                 });
 
                 if (validationErrors.length > 0) {
@@ -276,46 +329,55 @@ const PartsBulkUploadPage = () => {
     };
 
     const downloadTemplate = () => {
-        // Create template data
+        // Create simplified template with only essential fields
         const templateData = [
+            // Example 1: Single vehicle
             {
                 'Part Name': 'Premium Brake Pad Set',
                 'Description': 'High-performance ceramic brake pads for superior stopping power and reduced brake dust',
                 'Category': 'Brakes',
                 'Brands': 'Brembo, Wagner, Raybestos',
                 'Part Numbers': 'BP-CERAMIC-2024, OEM-12345, ALT-789',
-                'Sub Category': 'Brake Pads',
-                'Warranty': '2 years or 50,000 km',
-                'Weight Value': 2.5,
-                'Weight Unit': 'kg',
-                'Dimensions Length': 25,
-                'Dimensions Width': 15,
-                'Dimensions Height': 5,
-                'Dimensions Unit': 'cm',
-                'Vehicle 1 Year': 2020,
-                'Vehicle 1 Make': 'Toyota',
-                'Vehicle 1 Model': 'Camry',
-                'Vehicle 1 Variant': 'LE',
-                'Vehicle 2 Year': 2021,
-                'Vehicle 2 Make': 'Toyota',
-                'Vehicle 2 Model': 'Camry',
-                'Vehicle 2 Variant': 'SE',
-                'Spec Material': 'Ceramic',
-                'Spec Position': 'Front',
-                'Tags': 'brake, ceramic, toyota, front'
+                'Year': 2020,
+                'Make': 'Toyota',
+                'Model': 'Camry',
+                'Variant': 'LE'
             },
+            // Example 2: Multiple vehicles for same part
             {
                 'Part Name': 'K&N High Flow Air Filter',
                 'Description': 'Washable, reusable air filter for increased performance',
                 'Category': 'Engine',
                 'Brands': 'K&N',
                 'Part Numbers': 'AF-100, 33-2304',
-                'Sub Category': 'Air Filters',
-                'Warranty': '10 years / 1 million miles',
-                'Vehicle 1 Year': 2018,
-                'Vehicle 1 Make': 'Honda',
-                'Vehicle 1 Model': 'Civic',
-                'Tags': 'air filter, performance, reusable'
+                'Year': 2018,
+                'Make': 'Honda',
+                'Model': 'Civic',
+                'Variant': 'Sport'
+            },
+            // Additional vehicle for Air Filter (same Part Name, empty description/category/brands)
+            {
+                'Part Name': 'K&N High Flow Air Filter',
+                'Description': '',
+                'Category': '',
+                'Brands': '',
+                'Part Numbers': '',
+                'Year': 2019,
+                'Make': 'Honda',
+                'Model': 'Civic',
+                'Variant': 'EX'
+            },
+            // Another vehicle for Air Filter
+            {
+                'Part Name': 'K&N High Flow Air Filter',
+                'Description': '',
+                'Category': '',
+                'Brands': '',
+                'Part Numbers': '',
+                'Year': 2020,
+                'Make': 'Honda',
+                'Model': 'Accord',
+                'Variant': 'Sport'
             }
         ];
 
@@ -328,10 +390,10 @@ const PartsBulkUploadPage = () => {
             { wch: 15 },  // Category
             { wch: 30 },  // Brands
             { wch: 30 },  // Part Numbers
-            { wch: 15 },  // Sub Category
-            { wch: 20 },  // Warranty
-            { wch: 12 },  // Weight Value
-            { wch: 12 },  // Weight Unit
+            { wch: 8 },   // Year
+            { wch: 15 },  // Make
+            { wch: 15 },  // Model
+            { wch: 12 },  // Variant
         ];
         ws['!cols'] = colWidths;
 
@@ -613,12 +675,12 @@ const PartsBulkUploadPage = () => {
                         <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '13px', color: '#1e40af' }}>
                             <li>Download the template to see the required column structure</li>
                             <li><strong>Part Name</strong>, <strong>Description</strong>, <strong>Category</strong>, and <strong>Brands</strong> are required</li>
-                            <li>For <strong>Brands</strong>: Use comma-separated values (e.g., "Brembo, Wagner, ACDelco")</li>
-                            <li>For <strong>Part Numbers</strong>: Use comma-separated values (e.g., "BP-001, OEM-12345")</li>
-                            <li>Minimum 1 brand required, maximum 10 brands allowed</li>
-                            <li>Part numbers are optional, maximum 20 allowed</li>
+                            <li><strong>Brands</strong>: Comma-separated (e.g., "Brembo, Wagner, ACDelco")</li>
+                            <li><strong>Part Numbers</strong>: Comma-separated, optional (e.g., "BP-001, OEM-12345")</li>
+                            <li><strong>Multiple Vehicles</strong>: Repeat Part Name in subsequent rows with only vehicle info filled</li>
+                            <li>Example: Row 1 has full details + vehicle, Rows 2-3 have same Part Name + different vehicles</li>
+                            <li>Min 1 brand, max 10 | Part numbers max 20</li>
                             <li>Valid categories: {CATEGORIES.slice(0, 5).join(', ')}, etc.</li>
-                            <li>Maximum 100 parts per upload recommended</li>
                         </ul>
                     </div>
                 </div>
