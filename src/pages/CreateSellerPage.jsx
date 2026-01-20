@@ -76,10 +76,23 @@ const CreateSellerPage = () => {
     };
 
     const handleLocationChange = (field, value) => {
+        // Handle empty string or NaN
+        const numValue = value === '' || isNaN(value) ? null : parseFloat(value);
         setFormData(prev => ({
             ...prev,
-            location: { ...prev.location, [field]: value }
+            location: { ...prev.location, [field]: numValue }
         }));
+    };
+
+    const handleGSTINChange = (value) => {
+        setFormData(prev => ({
+            ...prev,
+            kyc: { ...prev.kyc, gstin: value.toUpperCase() }
+        }));
+        // Clear GSTIN error when user starts typing
+        if (errors['kyc.gstin']) {
+            setErrors(prev => ({ ...prev, ['kyc.gstin']: '' }));
+        }
     };
 
     const handleGoogleMapsUrlChange = (url) => {
@@ -438,27 +451,29 @@ const CreateSellerPage = () => {
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                         <div className="form-group">
-                            <label htmlFor="latitude">Latitude</label>
+                            <label htmlFor="latitude">Latitude (Optional)</label>
                             <input
                                 type="number"
                                 id="latitude"
                                 step="0.000001"
-                                value={formData.location.latitude || ''}
-                                onChange={(e) => handleLocationChange('latitude', parseFloat(e.target.value))}
+                                value={formData.location.latitude === null ? '' : formData.location.latitude}
+                                onChange={(e) => handleLocationChange('latitude', e.target.value)}
                                 placeholder="13.0418"
                             />
+                            <small>Leave empty or enter manually</small>
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="longitude">Longitude</label>
+                            <label htmlFor="longitude">Longitude (Optional)</label>
                             <input
                                 type="number"
                                 id="longitude"
                                 step="0.000001"
-                                value={formData.location.longitude || ''}
-                                onChange={(e) => handleLocationChange('longitude', parseFloat(e.target.value))}
+                                value={formData.location.longitude === null ? '' : formData.location.longitude}
+                                onChange={(e) => handleLocationChange('longitude', e.target.value)}
                                 placeholder="80.2341"
                             />
+                            <small>Leave empty or enter manually</small>
                         </div>
                     </div>
                 </div>
@@ -473,10 +488,7 @@ const CreateSellerPage = () => {
                             type="text"
                             id="gstin"
                             value={formData.kyc.gstin}
-                            onChange={(e) => setFormData(prev => ({
-                                ...prev,
-                                kyc: { ...prev.kyc, gstin: e.target.value.toUpperCase() }
-                            }))}
+                            onChange={(e) => handleGSTINChange(e.target.value)}
                             placeholder="33AAAAA0000A1Z5"
                             maxLength={15}
                         />
