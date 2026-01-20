@@ -597,23 +597,83 @@ const PartsBulkUploadPage = () => {
                             <thead>
                                 <tr style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)' }}>
                                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Part Name</th>
+                                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Description</th>
                                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Category</th>
                                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Brands</th>
                                     <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Part Numbers</th>
+                                    <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600 }}>Vehicles</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {parsedData.slice(0, 10).map((part, index) => (
                                     <tr key={index} style={{ borderBottom: '1px solid var(--border-color)' }}>
                                         <td style={{ padding: '0.75rem' }}>{part.partName}</td>
+                                        <td style={{ padding: '0.75rem', maxWidth: '300px' }}>
+                                            <div style={{
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: 'vertical'
+                                            }}>
+                                                {part.description}
+                                            </div>
+                                        </td>
                                         <td style={{ padding: '0.75rem' }}>{part.category}</td>
                                         <td style={{ padding: '0.75rem' }}>
-                                            {part.brand.join(', ')}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                {part.brand.map((b, idx) => (
+                                                    <span key={idx} style={{
+                                                        display: 'inline-block',
+                                                        padding: '2px 8px',
+                                                        background: 'rgba(59, 130, 246, 0.1)',
+                                                        borderRadius: '4px',
+                                                        fontSize: '12px',
+                                                        color: 'var(--primary)',
+                                                        border: '1px solid rgba(59, 130, 246, 0.2)'
+                                                    }}>
+                                                        {b}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         </td>
                                         <td style={{ padding: '0.75rem' }}>
-                                            {part.partNumbers && part.partNumbers.length > 0
-                                                ? part.partNumbers.join(', ')
-                                                : '-'}
+                                            {part.partNumbers && part.partNumbers.length > 0 ? (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    {part.partNumbers.map((pn, idx) => (
+                                                        <code key={idx} style={{
+                                                            padding: '2px 6px',
+                                                            background: '#f0f0f0',
+                                                            borderRadius: '3px',
+                                                            fontSize: '11px'
+                                                        }}>
+                                                            {pn}
+                                                        </code>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span style={{ color: 'var(--text-muted)' }}>-</span>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '0.75rem' }}>
+                                            {part.compatibleVehicles && part.compatibleVehicles.length > 0 ? (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    {part.compatibleVehicles.map((v, idx) => (
+                                                        <div key={idx} style={{
+                                                            fontSize: '12px',
+                                                            padding: '4px 8px',
+                                                            background: 'rgba(16, 185, 129, 0.1)',
+                                                            borderRadius: '4px',
+                                                            border: '1px solid rgba(16, 185, 129, 0.2)'
+                                                        }}>
+                                                            {v.year} {v.make} {v.model}
+                                                            {v.variant && ` ${v.variant}`}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span style={{ color: 'var(--text-muted)' }}>-</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
