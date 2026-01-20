@@ -641,14 +641,17 @@ const PartsBulkUploadPage = () => {
                                             {part.partNumbers && part.partNumbers.length > 0 ? (
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                                     {part.partNumbers.map((pn, idx) => (
-                                                        <code key={idx} style={{
-                                                            padding: '2px 6px',
-                                                            background: '#f0f0f0',
-                                                            borderRadius: '3px',
-                                                            fontSize: '11px'
+                                                        <span key={idx} style={{
+                                                            display: 'inline-block',
+                                                            padding: '2px 8px',
+                                                            background: 'rgba(59, 130, 246, 0.1)',
+                                                            borderRadius: '4px',
+                                                            fontSize: '12px',
+                                                            color: 'var(--primary)',
+                                                            border: '1px solid rgba(59, 130, 246, 0.2)'
                                                         }}>
                                                             {pn}
-                                                        </code>
+                                                        </span>
                                                     ))}
                                                 </div>
                                             ) : (
