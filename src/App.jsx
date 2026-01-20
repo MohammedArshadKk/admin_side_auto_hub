@@ -5,8 +5,9 @@ import MainLayout from './components/layout/MainLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProductsPage from './pages/ProductsPage';
-import ProductFormPage from './pages/ProductFormPage';
+import PartFormPage from './pages/PartFormPage';
 import BulkUploadPage from './pages/BulkUploadPage';
+import PartsBulkUploadPage from './pages/PartsBulkUploadPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -61,7 +62,7 @@ function App() {
           <Route path="/products/new" element={
             <ProtectedRoute>
               <MainLayout>
-                <ProductFormPage />
+                <PartFormPage />
               </MainLayout>
             </ProtectedRoute>
           } />
@@ -69,7 +70,7 @@ function App() {
           <Route path="/products/bulk-upload" element={
             <ProtectedRoute>
               <MainLayout>
-                <BulkUploadPage />
+                <PartsBulkUploadPage />
               </MainLayout>
             </ProtectedRoute>
           } />
@@ -77,7 +78,7 @@ function App() {
           <Route path="/products/:id/edit" element={
             <ProtectedRoute>
               <MainLayout>
-                <ProductFormPage />
+                <PartFormPage />
               </MainLayout>
             </ProtectedRoute>
           } />

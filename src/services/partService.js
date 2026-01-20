@@ -118,6 +118,18 @@ export const deletePart = async (partId) => {
     });
 };
 
+/**
+ * Admin: Bulk create parts
+ * @param {Array} parts - Array of part data
+ * @returns {Promise<Object>} - Bulk upload result with success/failure counts
+ */
+export const bulkCreateParts = async (parts) => {
+    return fetchWithAuth(`${API_BASE_URL}/parts/bulk`, {
+        method: 'POST',
+        body: JSON.stringify({ parts }),
+    });
+};
+
 export default {
     getParts,
     getPartById,
@@ -125,4 +137,5 @@ export default {
     createPart,
     updatePart,
     deletePart,
+    bulkCreateParts,
 };
