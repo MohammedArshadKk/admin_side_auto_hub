@@ -562,7 +562,7 @@ const CreateSellerPage = () => {
                 </div>
             </form>
 
-            <style jsx>{`
+            <style>{`
                 .error-text {
                     color: var(--error);
                     font-size: 12px;

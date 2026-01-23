@@ -8,7 +8,8 @@ import {
   Users,
   Settings,
   HelpCircle,
-  LogOut
+  LogOut,
+  SlidersHorizontal
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -17,7 +18,7 @@ const Sidebar = () => {
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-    { icon: Package, label: 'Inventory', path: '/products' },
+    { icon: SlidersHorizontal, label: 'Parts Catalog', path: '/parts' },
     { icon: Users, label: 'Manage Sellers', path: '/sellers' },
     { icon: ShoppingCart, label: 'Orders', path: '/orders', badge: 3 },
     { icon: DollarSign, label: 'Earnings', path: '/earnings' },

@@ -36,6 +36,41 @@ export const createProduct = async (productData) => {
 };
 
 /**
+ * Create a new part with simplified fields (Part Catalog)
+ * Transforms part data to product format with smart defaults
+ * @param {Object} partData - Simplified part data (name, description, category, brand, compatibleVehicles)
+ * @returns {Promise<Object>} - Created product response
+ */
+export const createPart = async (partData) => {
+    try {
+        // Transform part data to product format with defaults
+        const productData = {
+            // Required fields from part data
+            name: partData.name,
+            description: partData.description,
+            category: partData.category,
+
+            // Optional from part data
+            brand: partData.brand || '',
+            compatibleVehicles: partData.compatibleVehicles || [],
+
+            // Smart defaults for product fields
+            price: 0,
+            stock: 0,
+            condition: 'New',
+            status: 'ACTIVE', // Parts are active immediately
+            images: [],
+        };
+
+        // Use the existing createProduct function
+        return await createProduct(productData);
+    } catch (error) {
+        console.error('Create part error:', error);
+        throw error;
+    }
+};
+
+/**
  * Update an existing product (Admin)
  * @param {string} productId - Product ID
  * @param {Object} productData - Updated product data
@@ -172,6 +207,7 @@ export const bulkCreateProducts = async (products) => {
 
 export default {
     createProduct,
+    createPart,
     updateProduct,
     getProduct,
     getProducts,

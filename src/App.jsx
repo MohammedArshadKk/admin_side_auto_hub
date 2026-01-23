@@ -10,6 +10,8 @@ import BulkUploadPage from './pages/BulkUploadPage';
 import PartsBulkUploadPage from './pages/PartsBulkUploadPage';
 import SellersPage from './pages/SellersPage';
 import CreateSellerPage from './pages/CreateSellerPage';
+import EditSellerPage from './pages/EditSellerPage';
+import PartsPage from './pages/PartsPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -61,6 +63,30 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/parts" element={
+            <ProtectedRoute>
+              <MainLayout>
+                <PartsPage />
+              </MainLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/parts/new" element={
+            <ProtectedRoute>
+              <MainLayout>
+                <PartFormPage />
+              </MainLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/parts/:id/edit" element={
+            <ProtectedRoute>
+              <MainLayout>
+                <PartFormPage />
+              </MainLayout>
+            </ProtectedRoute>
+          } />
+
           <Route path="/products/new" element={
             <ProtectedRoute>
               <MainLayout>
@@ -69,7 +95,7 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/products/bulk-upload" element={
+          <Route path="/parts/bulk-upload" element={
             <ProtectedRoute>
               <MainLayout>
                 <PartsBulkUploadPage />
@@ -113,6 +139,14 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <CreateSellerPage />
+              </MainLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/sellers/:id/edit" element={
+            <ProtectedRoute>
+              <MainLayout>
+                <EditSellerPage />
               </MainLayout>
             </ProtectedRoute>
           } />

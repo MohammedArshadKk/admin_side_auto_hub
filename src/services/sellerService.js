@@ -121,6 +121,19 @@ export const unblockSeller = async (sellerId) => {
     });
 };
 
+/**
+ * Admin: Update seller
+ * @param {string} sellerId - Seller ID
+ * @param {Object} sellerData - Updated seller data
+ * @returns {Promise<Object>} - Updated seller response
+ */
+export const updateSellerAdmin = async (sellerId, sellerData) => {
+    return fetchWithAuth(`${API_BASE_URL}/sellers/admin/${sellerId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(sellerData),
+    });
+};
+
 export default {
     createSeller,
     getAllSellers,
@@ -129,4 +142,5 @@ export default {
     rejectSeller,
     blockSeller,
     unblockSeller,
+    updateSellerAdmin,
 };

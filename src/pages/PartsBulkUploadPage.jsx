@@ -407,7 +407,7 @@ const PartsBulkUploadPage = () => {
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
                 <button
-                    onClick={() => navigate('/products')}
+                    onClick={() => navigate('/parts')}
                     style={{
                         padding: '0.5rem',
                         background: 'transparent',
@@ -423,7 +423,7 @@ const PartsBulkUploadPage = () => {
                 </button>
                 <div>
                     <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                        Bulk Parts Upload
+                        Bulk Master Catalog upload
                     </h1>
                     <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                         Upload multiple parts using Excel file

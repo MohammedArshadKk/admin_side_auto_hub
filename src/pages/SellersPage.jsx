@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, CheckCircle, XCircle, Ban, Unlock, Eye, Loader } from 'lucide-react';
+import { Plus, Search, CheckCircle, XCircle, Ban, Unlock, Eye, Loader, Pencil, Package } from 'lucide-react';
 import { getAllSellers, verifySeller, blockSeller, unblockSeller } from '../services/sellerService';
+import ModernAlertDialog from '../components/ModernAlertDialog';
 
 const STATUS_COLORS = {
     PENDING: { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' },
@@ -28,6 +29,18 @@ const SellersPage = () => {
     });
 
     const [actionLoading, setActionLoading] = useState(null);
+    const [alertDialog, setAlertDialog] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'warning',
+        confirmText: 'Confirm',
+        cancelText: 'Cancel',
+        showInput: false,
+        onConfirm: () => { },
+        minInputLength: 0,
+        apiError: ''
+    });
 
     useEffect(() => {
         fetchSellers();
@@ -86,34 +99,58 @@ const SellersPage = () => {
     };
 
     const handleBlock = async (sellerId) => {
-        const reason = prompt('Enter reason for blocking this seller:');
-        if (!reason) return;
-
-        setActionLoading(sellerId);
-        try {
-            await blockSeller(sellerId, reason);
-            alert('Seller blocked successfully!');
-            fetchSellers();
-        } catch (error) {
-            alert('Error: ' + error.message);
-        } finally {
-            setActionLoading(null);
-        }
+        setAlertDialog({
+            isOpen: true,
+            title: 'Block Seller',
+            message: 'Are you sure you want to block this seller? They will not be able to perform any actions on the platform.',
+            type: 'danger',
+            confirmText: 'Block Seller',
+            showInput: true,
+            inputPlaceholder: 'Reason for blocking (optional)...',
+            minInputLength: 0,
+            onConfirm: async (reason) => {
+                setActionLoading(sellerId);
+                setAlertDialog(prev => ({ ...prev, apiError: '' }));
+                try {
+                    await blockSeller(sellerId, reason);
+                    setAlertDialog(prev => ({ ...prev, isOpen: false }));
+                    fetchSellers();
+                } catch (error) {
+                    setAlertDialog(prev => ({ ...prev, apiError: error.message }));
+                } finally {
+                    setActionLoading(null);
+                }
+            }
+        });
     };
 
     const handleUnblock = async (sellerId) => {
-        if (!confirm('Are you sure you want to unblock this seller?')) return;
+        setAlertDialog({
+            isOpen: true,
+            title: 'Unblock Seller',
+            message: 'Are you sure you want to unblock this seller? They will regain full access to the platform.',
+            type: 'info',
+            confirmText: 'Unblock Seller',
+            showInput: false,
+            apiError: '',
+            onConfirm: async () => {
+                setActionLoading(sellerId);
+                setAlertDialog(prev => ({ ...prev, apiError: '' }));
+                try {
+                    await unblockSeller(sellerId);
+                    setAlertDialog(prev => ({ ...prev, isOpen: false }));
+                    fetchSellers();
+                } catch (error) {
+                    setAlertDialog(prev => ({ ...prev, apiError: error.message }));
+                } finally {
+                    setActionLoading(null);
+                }
+            }
+        });
+    };
 
-        setActionLoading(sellerId);
-        try {
-            await unblockSeller(sellerId);
-            alert('Seller unblocked successfully!');
-            fetchSellers();
-        } catch (error) {
-            alert('Error: ' + error.message);
-        } finally {
-            setActionLoading(null);
-        }
+    const handleEdit = (sellerId) => {
+        navigate(`/sellers/${sellerId}/edit`);
     };
 
     const StatusBadge = ({ status }) => {
@@ -271,7 +308,7 @@ const SellersPage = () => {
                                     <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Location</th>
                                     <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Status</th>
                                     <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 600 }}>Active</th>
-                                    <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>Actions</th>
+                                    <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 600, minWidth: '120px' }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -363,6 +400,47 @@ const SellersPage = () => {
                                                         <Ban size={16} />
                                                     </button>
                                                 )}
+
+                                                <button
+                                                    onClick={() => navigate(`/products?sellerId=${seller._id}`)}
+                                                    title="View Products"
+                                                    style={{
+                                                        padding: '6px',
+                                                        background: '#6366f1',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        transition: 'all 0.2s ease'
+                                                    }}
+                                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4f46e5'}
+                                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#6366f1'}
+                                                >
+                                                    <Package size={16} />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleEdit(seller._id)}
+                                                    title="Edit Seller"
+                                                    style={{
+                                                        padding: '6px',
+                                                        background: 'var(--primary)',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        transition: 'all 0.2s ease',
+                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                    }}
+                                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
+                                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
+                                                >
+                                                    <Pencil size={16} />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -450,12 +528,18 @@ const SellersPage = () => {
                 </div>
             )}
 
-            <style jsx>{`
+            <style>{`
                 @keyframes spin {
                     from { transform: rotate(0deg); }
                     to { transform: rotate(360deg); }
                 }
             `}</style>
+
+            <ModernAlertDialog
+                {...alertDialog}
+                onClose={() => setAlertDialog(prev => ({ ...prev, isOpen: false }))}
+                loading={actionLoading !== null}
+            />
         </div>
     );
 };
