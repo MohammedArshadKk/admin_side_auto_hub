@@ -12,6 +12,7 @@ import SellersPage from './pages/SellersPage';
 import CreateSellerPage from './pages/CreateSellerPage';
 import EditSellerPage from './pages/EditSellerPage';
 import PartsPage from './pages/PartsPage';
+import ProductVerificationPage from './pages/ProductVerificationPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -107,6 +108,14 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <PartFormPage />
+              </MainLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/products/:id/verify" element={
+            <ProtectedRoute>
+              <MainLayout>
+                <ProductVerificationPage />
               </MainLayout>
             </ProtectedRoute>
           } />

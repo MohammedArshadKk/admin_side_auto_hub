@@ -79,7 +79,7 @@ export const createPart = async (partData) => {
 export const updateProduct = async (productId, productData) => {
     try {
         const response = await fetch(`${API_BASE_URL}/products/admin/${productId}`, {
-            method: 'PUT',
+            method: 'PATCH',
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
@@ -96,6 +96,35 @@ export const updateProduct = async (productId, productData) => {
         return data;
     } catch (error) {
         console.error('Update product error:', error);
+        throw error;
+    }
+};
+
+/**
+ * Admin: Verify product (Approve and make ACTIVE)
+ * @param {string} productId - Product ID
+ * @returns {Promise<Object>} - Updated product response
+ */
+export const verifyProduct = async (productId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/products/admin/${productId}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: 'ACTIVE' }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to verify product');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Verify product error:', error);
         throw error;
     }
 };
@@ -120,6 +149,64 @@ export const getProduct = async (productId) => {
         return data;
     } catch (error) {
         console.error('Get product error:', error);
+        throw error;
+    }
+};
+
+/**
+ * Admin: Get exhaustive product details by ID
+ * @param {string} productId - Product ID
+ * @returns {Promise<Object>} - Exhaustive product data
+ */
+export const getProductAdmin = async (productId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/products/admin/${productId}`, {
+            credentials: 'include',
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to fetch admin product details');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Get admin product error:', error);
+        throw error;
+    }
+};
+
+/**
+ * Get all products (Admin version with pagination and populate)
+ * @param {Object} filters - Query filters (page, limit, status, seller, brand, search)
+ * @returns {Promise<Object>} - Products list with metadata
+ */
+export const getAllProductsAdmin = async (filters = {}) => {
+    try {
+        const queryParams = new URLSearchParams();
+
+        Object.keys(filters).forEach(key => {
+            if (filters[key] !== undefined && filters[key] !== '' && filters[key] !== null) {
+                queryParams.append(key, filters[key]);
+            }
+        });
+
+        const url = `${API_BASE_URL}/products/admin/all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+
+        const response = await fetch(url, {
+            credentials: 'include',
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to fetch admin products');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Get admin products error:', error);
         throw error;
     }
 };
@@ -209,8 +296,11 @@ export default {
     createProduct,
     createPart,
     updateProduct,
+    verifyProduct,
     getProduct,
+    getProductAdmin,
     getProducts,
+    getAllProductsAdmin,
     deleteProduct,
     bulkCreateProducts,
 };

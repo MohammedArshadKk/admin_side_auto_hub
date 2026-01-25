@@ -9,20 +9,39 @@ import {
   Settings,
   HelpCircle,
   LogOut,
-  SlidersHorizontal
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
   const { logout } = useAuth();
+  const [expandedItems, setExpandedItems] = React.useState(['/sellers']);
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
     { icon: SlidersHorizontal, label: 'Parts Catalog', path: '/parts' },
-    { icon: Users, label: 'Manage Sellers', path: '/sellers' },
+    {
+      icon: Users,
+      label: 'Manage Sellers',
+      path: '/sellers',
+      children: [
+        { label: 'Manage Sellers', path: '/sellers' },
+        { label: 'Sellers Products', path: '/products' },
+      ]
+    },
     { icon: ShoppingCart, label: 'Orders', path: '/orders', badge: 3 },
     { icon: DollarSign, label: 'Earnings', path: '/earnings' },
   ];
+
+  const toggleExpand = (path) => {
+    setExpandedItems(prev =>
+      prev.includes(path)
+        ? prev.filter(p => p !== path)
+        : [...prev, path]
+    );
+  };
 
   const bottomItems = [
     { icon: Settings, label: 'Settings', path: '/settings' },
@@ -75,49 +94,115 @@ const Sidebar = () => {
 
       {/* Navigation */}
       <nav style={{ flex: 1, padding: '1rem 0.75rem', overflow: 'auto' }}>
-        {navItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            style={({ isActive }) => ({
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '0.75rem 1rem',
-              marginBottom: '0.25rem',
-              borderRadius: 'var(--radius-lg)',
-              color: isActive ? '#ffffff' : 'var(--text-secondary)',
-              backgroundColor: isActive ? 'var(--primary)' : 'transparent',
-              fontSize: '14px',
-              fontWeight: isActive ? 500 : 400,
-              transition: 'all 0.2s',
-              textDecoration: 'none',
-            })}
-          >
-            {({ isActive }) => (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <item.icon size={18} />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge && (
-                  <div style={{
-                    background: '#ef4444',
-                    color: '#ffffff',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    padding: '0.125rem 0.5rem',
-                    borderRadius: '9999px',
-                    minWidth: '20px',
-                    textAlign: 'center',
-                  }}>
-                    {item.badge}
+        {navItems.map((item) => {
+          const hasChildren = item.children && item.children.length > 0;
+          const isExpanded = expandedItems.includes(item.path);
+
+          return (
+            <div key={item.path}>
+              {hasChildren ? (
+                <div
+                  onClick={() => toggleExpand(item.path)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.75rem 1rem',
+                    marginBottom: '0.25rem',
+                    borderRadius: 'var(--radius-lg)',
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent',
+                    fontSize: '14px',
+                    fontWeight: 400,
+                    transition: 'all 0.2s',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <item.icon size={18} />
+                    <span>{item.label}</span>
                   </div>
-                )}
-              </>
-            )}
-          </NavLink>
-        ))}
+                  {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                </div>
+              ) : (
+                <NavLink
+                  to={item.path}
+                  style={({ isActive }) => ({
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.75rem 1rem',
+                    marginBottom: '0.25rem',
+                    borderRadius: 'var(--radius-lg)',
+                    color: isActive ? '#ffffff' : 'var(--text-secondary)',
+                    backgroundColor: isActive ? 'var(--primary)' : 'transparent',
+                    fontSize: '14px',
+                    fontWeight: isActive ? 500 : 400,
+                    transition: 'all 0.2s',
+                    textDecoration: 'none',
+                  })}
+                >
+                  {({ isActive }) => (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <item.icon size={18} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <div style={{
+                          background: '#ef4444',
+                          color: '#ffffff',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          padding: '0.125rem 0.5rem',
+                          borderRadius: '9999px',
+                          minWidth: '20px',
+                          textAlign: 'center',
+                        }}>
+                          {item.badge}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              )}
+
+              {hasChildren && isExpanded && (
+                <div style={{ marginLeft: '1.5rem', marginTop: '0.25rem', marginBottom: '0.5rem', borderLeft: '1px solid var(--border-color)' }}>
+                  {item.children.map((child) => (
+                    <NavLink
+                      key={child.path}
+                      to={child.path}
+                      style={({ isActive }) => ({
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0.625rem 1rem',
+                        marginBottom: '0.125rem',
+                        borderRadius: '0 var(--radius-lg) var(--radius-lg) 0',
+                        color: isActive ? 'var(--primary)' : 'var(--text-secondary)',
+                        backgroundColor: isActive ? 'var(--primary-light)' : 'transparent',
+                        fontSize: '13px',
+                        fontWeight: isActive ? 600 : 400,
+                        transition: 'all 0.2s',
+                        textDecoration: 'none',
+                      })}
+                    >
+                      {child.label}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
       {/* Bottom Items */}
