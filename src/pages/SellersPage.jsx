@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, CheckCircle, XCircle, Ban, Unlock, Eye, Loader, Pencil, Package } from 'lucide-react';
+import { Plus, Search, CheckCircle, XCircle, Ban, Unlock, Eye, Loader, Pencil, Package, ShoppingBag } from 'lucide-react';
 import { getAllSellers, verifySeller, blockSeller, unblockSeller } from '../services/sellerService';
 import ModernAlertDialog from '../components/ModernAlertDialog';
 
@@ -440,6 +440,27 @@ const SellersPage = () => {
                                                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
                                                 >
                                                     <Pencil size={16} />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => navigate(`/orders?sellerId=${seller._id}`)}
+                                                    title="View Orders"
+                                                    style={{
+                                                        padding: '6px',
+                                                        background: '#10b981',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        transition: 'all 0.2s ease',
+                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                    }}
+                                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+                                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+                                                >
+                                                    <ShoppingBag size={16} />
                                                 </button>
                                             </div>
                                         </td>

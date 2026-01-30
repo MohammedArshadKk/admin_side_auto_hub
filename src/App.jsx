@@ -9,6 +9,7 @@ import PartFormPage from './pages/PartFormPage';
 import BulkUploadPage from './pages/BulkUploadPage';
 import PartsBulkUploadPage from './pages/PartsBulkUploadPage';
 import SellersPage from './pages/SellersPage';
+import SellerOrdersPage from './pages/SellerOrdersPage';
 import CreateSellerPage from './pages/CreateSellerPage';
 import EditSellerPage from './pages/EditSellerPage';
 import PartsPage from './pages/PartsPage';
@@ -123,7 +124,7 @@ function App() {
           <Route path="/orders" element={
             <ProtectedRoute>
               <MainLayout>
-                <PlaceholderPage title="Order Management" />
+                <SellerOrdersPage />
               </MainLayout>
             </ProtectedRoute>
           } />
