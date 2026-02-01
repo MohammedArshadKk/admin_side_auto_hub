@@ -13,9 +13,12 @@ import SellerOrdersPage from './pages/SellerOrdersPage';
 import CreateSellerPage from './pages/CreateSellerPage';
 import EditSellerPage from './pages/EditSellerPage';
 import PartsPage from './pages/PartsPage';
+import ConfigPage from './pages/ConfigPage';
 import ProductVerificationPage from './pages/ProductVerificationPage';
 
-// Protected Route Component
+// ... existing imports ...
+
+
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -164,7 +167,7 @@ function App() {
           <Route path="/settings" element={
             <ProtectedRoute>
               <MainLayout>
-                <PlaceholderPage title="Settings" />
+                <ConfigPage />
               </MainLayout>
             </ProtectedRoute>
           } />
