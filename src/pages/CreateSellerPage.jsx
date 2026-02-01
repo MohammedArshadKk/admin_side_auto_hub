@@ -132,7 +132,7 @@ const CreateSellerPage = () => {
         // Email validation
         if (!formData.email) {
             newErrors.email = 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = 'Invalid email format';
         }
 
@@ -141,6 +141,8 @@ const CreateSellerPage = () => {
             newErrors.password = 'Password is required';
         } else if (formData.password.length < 8) {
             newErrors.password = 'Password must be at least 8 characters';
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+            newErrors.password = 'Password must contain uppercase, lowercase, and number';
         }
 
         // Business name validation
@@ -158,24 +160,31 @@ const CreateSellerPage = () => {
         // Phone validation
         if (!formData.phone) {
             newErrors.phone = 'Phone number is required';
+        } else if (!/^\d{10}$/.test(formData.phone.replace(/[^\d]/g, ''))) {
+            // Simple 10-digit check, ignoring non-digits
+            newErrors.phone = 'Phone must be 10 digits';
         }
 
         // Address validation
-        if (!formData.address.street) {
-            newErrors['address.street'] = 'Street address is required';
-        }
-        if (!formData.address.city) {
-            newErrors['address.city'] = 'City is required';
-        }
-        if (!formData.address.state) {
-            newErrors['address.state'] = 'State is required';
-        }
+        if (!formData.address.street) newErrors['address.street'] = 'Street address is required';
+        if (!formData.address.city) newErrors['address.city'] = 'City is required';
+        if (!formData.address.state) newErrors['address.state'] = 'State is required';
         if (!formData.address.postalCode) {
             newErrors['address.postalCode'] = 'Postal code is required';
+        } else if (!/^\d{6}$/.test(formData.address.postalCode)) {
+            newErrors['address.postalCode'] = 'Invalid postal code (6 digits)';
+        }
+
+        // Location Validation (if provided)
+        if (formData.location.latitude !== null && (formData.location.latitude < -90 || formData.location.latitude > 90)) {
+            newErrors.location = 'Latitude must be between -90 and 90';
+        }
+        if (formData.location.longitude !== null && (formData.location.longitude < -180 || formData.location.longitude > 180)) {
+            newErrors.location = 'Longitude must be between -180 and 180';
         }
 
         // GSTIN validation (if provided)
-        if (formData.kyc.gstin && formData.kyc.gstin.length > 0) {
+        if (formData.kyc.gstin && formData.kyc.gstin.trim().length > 0) {
             const gstinRegex = /^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$/;
             if (!gstinRegex.test(formData.kyc.gstin)) {
                 newErrors['kyc.gstin'] = 'Invalid GSTIN format';
@@ -191,19 +200,45 @@ const CreateSellerPage = () => {
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
+            // Scroll to top error
+            const firstError = Object.keys(validationErrors)[0];
+            const element = document.getElementById(firstError.includes('.') ? firstError.split('.')[0] : firstError);
+            if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
 
         setLoading(true);
 
         try {
-            await createSeller(formData);
+            // Clean Data
+            const payload = { ...formData };
+
+            // Handle Location: ensure nulls are not sent if empty
+            if (payload.location) {
+                const loc = { ...payload.location };
+                if (!loc.googleMapsUrl) delete loc.googleMapsUrl;
+                if (loc.latitude === null || loc.latitude === undefined || loc.latitude === '') delete loc.latitude;
+                if (loc.longitude === null || loc.longitude === undefined || loc.longitude === '') delete loc.longitude;
+                payload.location = loc;
+            }
+
+            // Handle KYC
+            if (payload.kyc) {
+                const kyc = { ...payload.kyc };
+                if (!kyc.gstin) delete kyc.gstin;
+                payload.kyc = kyc;
+            }
+
+            await createSeller(payload);
+            setLoading(false); // Reset loading BEFORE alert to avoid stuck state if alert blocks
+
+            // Use a custom alert or toast ideally, but standard alert is fine as per existing code
             alert('Seller created successfully!');
             navigate('/sellers');
         } catch (error) {
-            alert('Error: ' + error.message);
-        } finally {
+            console.error(error);
             setLoading(false);
+            alert(`Error creating seller: ${error.message}`);
         }
     };
 
@@ -219,6 +254,31 @@ const CreateSellerPage = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="part-form">
+                {Object.keys(errors).length > 0 && (
+                    <div style={{
+                        background: '#fee2e2',
+                        border: '1px solid #ef4444',
+                        color: '#991b1b',
+                        padding: '1rem',
+                        borderRadius: '0.5rem',
+                        marginBottom: '1.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                    }}>
+                        <AlertCircle size={20} />
+                        <div>
+                            <strong>Please correct the errors below:</strong>
+                            <ul style={{ margin: '0.5rem 0 0 1.5rem', fontSize: '0.9rem' }}>
+                                {Object.keys(errors).slice(0, 3).map(key => (
+                                    <li key={key}>{errors[key]}</li>
+                                ))}
+                                {Object.keys(errors).length > 3 && <li>...and {Object.keys(errors).length - 3} more</li>}
+                            </ul>
+                        </div>
+                    </div>
+                )}
+
                 {/* Basic Information */}
                 <div className="form-section">
                     <h2>Basic Information <span className="required-mark">*</span></h2>
@@ -476,6 +536,11 @@ const CreateSellerPage = () => {
                             <small>Leave empty or enter manually</small>
                         </div>
                     </div>
+                    {errors.location && (
+                        <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: '#fee2e2', color: '#dc2626', borderRadius: '4px', fontSize: '0.875rem' }}>
+                            {errors.location}
+                        </div>
+                    )}
                 </div>
 
                 {/* KYC & Settings */}
